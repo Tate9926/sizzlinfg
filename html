@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sizzling Hot Deluxe</title>
+
+<style>
+/* ---------------- GLOBAL STYLE ---------------- */
+body {
+    background: radial-gradient(circle, #520000, #000000);
+    font-family: "Poppins", sans-serif;
+    color: #ffd700;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+}
+
+.slot-container {
+    margin-top: 40px;
+}
+
+h1 {
+    font-size: 3rem;
+    color: #ff3333;
+    text-shadow: 0 0 12px #ff0000;
+}
+
+/* ---------------- BALANCE ---------------- */
+#balance-box {
+    margin-bottom: 20px;
+    font-size: 1.4rem;
+    color: #fff;
+    text-shadow: 0 0 6px #ffa500;
+}
+
+/* ---------------- SLOT MACHINE ---------------- */
+.slot-machine {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 25px;
+}
+
+.reel {
+    width: 95px;
+    height: 130px;
+    background: rgba(0, 0, 0, 0.55);
+    border: 3px solid gold;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3.3rem;
+    color: white;
+    text-shadow: 0 0 8px #ff0000;
+    box-shadow: 0 0 12px gold;
+    transition: 0.2s ease;
+}
+
+/* ---------------- BUTTONS ---------------- */
+button {
+    padding: 12px 40px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 1.1rem;
+    margin: 8px;
+    background: linear-gradient(45deg, #ff1111, #ff8800);
+    box-shadow: 0 0 12px #ff6600;
+    color: white;
+}
+
+button:hover {
+    background: linear-gradient(45deg, #ff6600, #ffbb00);
+}
+
+/* ---------------- RESULT MSG ---------------- */
+#result {
+    margin-top: 20px;
+    font-size: 1.5rem;
+    visibility: hidden;
+}
+</style>
+</head>
+
+<body>
+<div class="slot-container">
+
+    <h1>Sizzling Hot Deluxe 🔥</h1>
+
+    <div id="balance-box">
+        Balance: $<span id="balance">100</span>
+    </div>
+
+    <div class="slot-machine">
+        <div class="reel" id="reel1">🍒</div>
+        <div class="reel" id="reel2">🍉</div>
+        <div class="reel" id="reel3">⭐</div>
+        <div class="reel" id="reel4">🍋</div>
+        <div class="reel" id="reel5">7️⃣</div>
+    </div>
+
+    <button id="spin-btn">SPIN 🎰</button>
+    <button id="deposit-btn">DEPOSIT</button>
+
+    <div id="result"></div>
+
+</div>
+
+<script>
+/* ---------------- SLOT LOGIC ---------------- */
+
+const symbols = ["🍒", "🍋", "🍉", "🍇", "⭐", "7️⃣"];
+
+const reels = [
+    document.getElementById("reel1"),
+    document.getElementById("reel2"),
+    document.getElementById("reel3"),
+    document.getElementById("reel4"),
+    document.getElementById("reel5")
+];
+
+let balance = 100;
+document.getElementById("balance").textContent = balance;
+
+function randomSymbol() {
+    return symbols[Math.floor(Math.random() * symbols.length)];
+}
+
+function spinReels() {
+    let result = [];
+
+    reels.forEach((reel, i) => {
+        setTimeout(() => {
+            const symbol = randomSymbol();
+            reel.textContent = symbol;
+            reel.style.transform = "scale(0.85)";
+            setTimeout(() => reel.style.transform = "scale(1)", 150);
+        }, i * 150);
+
+        result.push(randomSymbol());
+    });
+
+    return result;
+}
+
+function checkWin(result) {
+    const counts = {};
+    result.forEach(s => counts[s] = (counts[s] || 0) + 1);
+
+    let winAmount = 0;
+
+    for (const symbol in counts) {
+        if (counts[symbol] >= 3) {
+            winAmount = counts[symbol] * 10;
+        }
+    }
+    return winAmount;
+}
+
+document.getElementById("spin-btn").onclick = () => {
+    if (balance < 5) {
+        showResult("You need at least $5 to spin!", "red");
+        return;
+    }
+
+    balance -= 5;
+    document.getElementById("balance").textContent = balance;
+
+    const result = spinReels();
+    setTimeout(() => {
+        const win = checkWin(result);
+
+        if (win > 0) {
+            balance += win;
+            document.getElementById("balance").textContent = balance;
+            showResult(`YOU WIN $${win}! 🔥`, "gold");
+        } else {
+            showResult("No win. Try again!", "white");
+        }
+    }, 900);
+};
+
+function showResult(text, color) {
+    const r = document.getElementById("result");
+    r.textContent = text;
+    r.style.color = color;
+    r.style.visibility = "visible";
+}
+
+/* ---------------- DEPOSIT BUTTON (FRONTEND ONLY) ---------------- */
+document.getElementById("deposit-btn").onclick = async () => {
+    // If you connect to your backend later:
+    // const res = await fetch("/api/deposit", { method: "POST" });
+    // const data = await res.json();
+
+    balance += 50;
+    document.getElementById("balance").textContent = balance;
+    showResult("Deposit successful! +$50", "lime");
+};
+</script>
+
+</body>
+</html>
